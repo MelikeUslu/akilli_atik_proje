@@ -1,0 +1,46 @@
+name: akilli_atik_proje
+description: Akıllı Atık Toplama Rota Optimizasyon Sistemi Flutter mobil uygulaması.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.6.1
+  go_router: ^17.3.0
+  dio: ^5.11.0
+  get_it: ^9.2.1
+  injectable: ^3.0.0
+  google_maps_flutter: ^2.18.0
+  signalr_netcore: ^1.4.4
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.5.5
+  flutter_secure_storage: ^10.3.1
+  connectivity_plus: ^7.0.0
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
+  local_auth: ^2.3.0
+  flutter_svg: ^2.3.0
+  firebase_core: ^4.14.0
+  firebase_messaging: ^16.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  build_runner: ^2.15.1
+  injectable_generator: ^3.1.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
