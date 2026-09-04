@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/constants/demo_config.dart';
 import '../../core/router/app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/location_distance_calculator.dart';
@@ -35,11 +38,33 @@ final class _MapPageState extends ConsumerState<MapPage> {
   static const double _mapBorderRadius = 28;
 
   bool _routeRequested = false;
+  Timer? _demoRefreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (DemoConfig.enabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_loadInitialDemoData());
+      });
+
+      _demoRefreshTimer = Timer.periodic(DemoConfig.updateInterval, (_) {
+        unawaited(_refreshDemoContainers());
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _requestInitialRouteIfPossible();
+  }
+
+  @override
+  void dispose() {
+    _demoRefreshTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -423,16 +448,59 @@ final class _MapPageState extends ConsumerState<MapPage> {
     return reason;
   }
 
-  Future<void> _refreshRouteAfterStopAction() async {
+  Future<void> _loadInitialDemoData() async {
+    if (!DemoConfig.enabled || !mounted) {
+      return;
+    }
+
+    final driverId = _resolveDriverId();
+
+    await Future.wait([
+      ref
+          .read(containerProvider.notifier)
+          .loadContainers(zoneId: DemoConfig.zoneId),
+      ref.read(mapProvider.notifier).loadActiveRoute(driverId: driverId),
+    ]);
+  }
+
+  Future<void> _refreshDemoContainers() async {
+    if (!DemoConfig.enabled || !mounted) {
+      return;
+    }
+
+    await ref
+        .read(containerProvider.notifier)
+        .loadContainers(zoneId: DemoConfig.zoneId);
+  }
+
+  String _resolveDriverId() {
     final authenticatedUser = ref.read(loginProvider).authenticatedUser;
 
-    final driverId = authenticatedUser?.id.trim();
+    final userId = authenticatedUser?.id.trim();
 
-    if (driverId == null || driverId.isEmpty) {
+    if (userId != null && userId.isNotEmpty) {
+      return userId;
+    }
+
+    if (DemoConfig.enabled) {
+      return DemoConfig.driverId;
+    }
+
+    return '';
+  }
+
+  Future<void> _refreshRouteAfterStopAction() async {
+    final driverId = _resolveDriverId();
+
+    if (driverId.isEmpty) {
       return;
     }
 
     await ref.read(mapProvider.notifier).refreshActiveRoute(driverId: driverId);
+
+    if (DemoConfig.enabled) {
+      await _refreshDemoContainers();
+    }
   }
 
   void _requestInitialRouteIfPossible() {
@@ -440,11 +508,9 @@ final class _MapPageState extends ConsumerState<MapPage> {
       return;
     }
 
-    final authenticatedUser = ref.read(loginProvider).authenticatedUser;
+    final driverId = _resolveDriverId();
 
-    final driverId = authenticatedUser?.id.trim();
-
-    if (driverId == null || driverId.isEmpty) {
+    if (driverId.isEmpty) {
       return;
     }
 
@@ -467,11 +533,14 @@ final class _MapPageState extends ConsumerState<MapPage> {
       notifier.refreshConnectivityStatus(),
     ]);
 
-    final authenticatedUser = ref.read(loginProvider).authenticatedUser;
+    if (DemoConfig.enabled) {
+      await _refreshDemoContainers();
+      return;
+    }
 
-    final driverId = authenticatedUser?.id.trim();
+    final driverId = _resolveDriverId();
 
-    if (driverId == null || driverId.isEmpty) {
+    if (driverId.isEmpty) {
       return;
     }
 
@@ -484,6 +553,11 @@ final class _MapPageState extends ConsumerState<MapPage> {
     final driverId = authenticatedUser?.id.trim();
 
     if (driverId == null || driverId.isEmpty) {
+      if (DemoConfig.enabled) {
+        _showDemoShiftMessage();
+        return;
+      }
+
       if (!mounted) {
         return;
       }
@@ -548,6 +622,22 @@ final class _MapPageState extends ConsumerState<MapPage> {
     ref.read(mapProvider.notifier).clear();
 
     context.go(AppRoutes.shiftSummary, extra: shift);
+  }
+
+  void _showDemoShiftMessage() {
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Demo harita aktif. Vardiya bitirme işlemi giriş yapılmış kullanıcı üzerinden çalışır.',
+          ),
+        ),
+      );
   }
 }
 

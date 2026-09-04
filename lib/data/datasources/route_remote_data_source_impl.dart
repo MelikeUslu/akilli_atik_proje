@@ -1,19 +1,24 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../core/constants/demo_config.dart';
 import '../models/route_model.dart';
+import '../services/demo_waste_data_service.dart';
 import 'route_remote_data_source.dart';
 
 @LazySingleton(as: RouteRemoteDataSource)
 final class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
   const RouteRemoteDataSourceImpl({
     required this.dio,
+    required this.demoWasteDataService,
     @Named('activeRouteEndpoint') required this.activeRouteEndpoint,
     @Named('completeRouteStopEndpoint') required this.completeRouteStopEndpoint,
     @Named('skipRouteStopEndpoint') required this.skipRouteStopEndpoint,
   });
 
   final Dio dio;
+  final DemoWasteDataService demoWasteDataService;
+
   final String activeRouteEndpoint;
   final String completeRouteStopEndpoint;
   final String skipRouteStopEndpoint;
@@ -24,6 +29,10 @@ final class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
 
     if (normalizedDriverId.isEmpty) {
       throw const FormatException('Şoför bilgisi boş olamaz.');
+    }
+
+    if (DemoConfig.enabled) {
+      return demoWasteDataService.getActiveRoute(driverId: normalizedDriverId);
     }
 
     final endpoint = activeRouteEndpoint.replaceFirst(
@@ -60,6 +69,11 @@ final class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
       throw const FormatException('Durak bilgisi boş olamaz.');
     }
 
+    if (DemoConfig.enabled) {
+      await demoWasteDataService.completeStop(stopId: normalizedStopId);
+      return;
+    }
+
     final endpoint = completeRouteStopEndpoint
         .replaceFirst('{id}', Uri.encodeComponent(normalizedRouteId))
         .replaceFirst('{stopId}', Uri.encodeComponent(normalizedStopId));
@@ -87,6 +101,14 @@ final class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
 
     if (normalizedReason.isEmpty) {
       throw const FormatException('Durak atlama nedeni boş olamaz.');
+    }
+
+    if (DemoConfig.enabled) {
+      await demoWasteDataService.skipStop(
+        stopId: normalizedStopId,
+        reason: normalizedReason,
+      );
+      return;
     }
 
     final endpoint = skipRouteStopEndpoint

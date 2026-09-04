@@ -69,6 +69,8 @@ import 'package:akilli_atik_proje/data/repositories/shift_repository_impl.dart'
     as _i393;
 import 'package:akilli_atik_proje/data/repositories/waste_container_repository_impl.dart'
     as _i54;
+import 'package:akilli_atik_proje/data/services/demo_waste_data_service.dart'
+    as _i201;
 import 'package:akilli_atik_proje/data/services/offline_route_action_queue.dart'
     as _i283;
 import 'package:akilli_atik_proje/data/services/offline_route_sync_service.dart'
@@ -116,6 +118,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i110.HttpsOnlyInterceptor(),
     );
     gh.lazySingleton<_i546.SignalRClient>(() => _i546.SignalRClient());
+    gh.lazySingleton<_i201.DemoWasteDataService>(
+      () => _i201.DemoWasteDataService(),
+    );
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
@@ -215,6 +220,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i245.WasteContainerRemoteDataSourceImpl(
         gh<_i361.Dio>(),
         gh<String>(instanceName: 'containersByZoneEndpoint'),
+        gh<_i201.DemoWasteDataService>(),
       ),
     );
     gh.lazySingleton<_i1050.AuthRemoteDataSource>(
@@ -229,21 +235,22 @@ extension GetItInjectableX on _i174.GetIt {
         localDataSource: gh<_i63.WasteContainerLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i285.GetContainersByZoneUseCase>(
+      () =>
+          _i285.GetContainersByZoneUseCase(gh<_i78.WasteContainerRepository>()),
+    );
     gh.lazySingleton<_i26.ShiftRemoteDataSource>(
       () => _i739.ShiftRemoteDataSourceImpl(
         dio: gh<_i361.Dio>(),
+        demoWasteDataService: gh<_i201.DemoWasteDataService>(),
         startShiftEndpoint: gh<String>(instanceName: 'startShiftEndpoint'),
         endShiftEndpoint: gh<String>(instanceName: 'endShiftEndpoint'),
-      ),
-    );
-    gh.lazySingleton<_i40.ShiftRepository>(
-      () => _i393.ShiftRepositoryImpl(
-        remoteDataSource: gh<_i26.ShiftRemoteDataSource>(),
       ),
     );
     gh.lazySingleton<_i891.RouteRemoteDataSource>(
       () => _i575.RouteRemoteDataSourceImpl(
         dio: gh<_i361.Dio>(),
+        demoWasteDataService: gh<_i201.DemoWasteDataService>(),
         activeRouteEndpoint: gh<String>(instanceName: 'activeRouteEndpoint'),
         completeRouteStopEndpoint: gh<String>(
           instanceName: 'completeRouteStopEndpoint',
@@ -253,15 +260,29 @@ extension GetItInjectableX on _i174.GetIt {
         ),
       ),
     );
+    gh.lazySingleton<_i49.AuthRepository>(
+      () => _i692.AuthRepositoryImpl(
+        remoteDataSource: gh<_i1050.AuthRemoteDataSource>(),
+        localDataSource: gh<_i724.AuthLocalDataSource>(),
+        biometricDataSource: gh<_i878.BiometricDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i366.BiometricLoginUseCase>(
+      () => _i366.BiometricLoginUseCase(gh<_i49.AuthRepository>()),
+    );
+    gh.lazySingleton<_i417.LoginUseCase>(
+      () => _i417.LoginUseCase(gh<_i49.AuthRepository>()),
+    );
+    gh.lazySingleton<_i40.ShiftRepository>(
+      () => _i393.ShiftRepositoryImpl(
+        remoteDataSource: gh<_i26.ShiftRemoteDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i38.OfflineRouteSyncService>(
       () => _i38.OfflineRouteSyncService(
         remoteDataSource: gh<_i891.RouteRemoteDataSource>(),
         offlineRouteActionQueue: gh<_i283.OfflineRouteActionQueue>(),
       ),
-    );
-    gh.lazySingleton<_i285.GetContainersByZoneUseCase>(
-      () =>
-          _i285.GetContainersByZoneUseCase(gh<_i78.WasteContainerRepository>()),
     );
     gh.lazySingleton<_i679.RouteRepository>(
       () => _i671.RouteRepositoryImpl(
@@ -274,21 +295,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i20.GetActiveRouteUseCase>(
       () => _i20.GetActiveRouteUseCase(gh<_i679.RouteRepository>()),
     );
-    gh.lazySingleton<_i49.AuthRepository>(
-      () => _i692.AuthRepositoryImpl(
-        remoteDataSource: gh<_i1050.AuthRemoteDataSource>(),
-        localDataSource: gh<_i724.AuthLocalDataSource>(),
-        biometricDataSource: gh<_i878.BiometricDataSource>(),
-      ),
-    );
     gh.lazySingleton<_i933.StartShiftUseCase>(
       () => _i933.StartShiftUseCase(gh<_i40.ShiftRepository>()),
-    );
-    gh.lazySingleton<_i366.BiometricLoginUseCase>(
-      () => _i366.BiometricLoginUseCase(gh<_i49.AuthRepository>()),
-    );
-    gh.lazySingleton<_i417.LoginUseCase>(
-      () => _i417.LoginUseCase(gh<_i49.AuthRepository>()),
     );
     gh.lazySingleton<_i899.OfflineSyncCoordinator>(
       () => _i899.OfflineSyncCoordinator(
