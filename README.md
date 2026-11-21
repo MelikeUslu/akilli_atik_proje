@@ -1,17 +1,37 @@
-# akilli_atik_proje
+# Smart Waste Collection Route Optimization System
 
-A new Flutter project.
+### Flutter Mobile Application
 
-## Getting Started
+## Project Overview
 
-This project is a starting point for a Flutter application.
+Smart Waste Collection Route Optimization System is a mobile application project developed using Flutter and Dart.
 
-A few resources to get you started if this is your first Flutter project:
+The project focuses on supporting smart waste management and route optimization processes through mobile technologies.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Technologies & Tools
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Mobile Development:** Flutter, Dart
+- **State Management:** Riverpod
+- **Navigation:** GoRouter
+- **API Communication:** Dio
+- **Maps & Location:** Google Maps, Geolocator
+- **Local Storage:** Hive, SharedPreferences
+- **Development Tools:** Git, GitHub
+
+## My Contribution
+
+I participated in the development of this mobile application as part of a professional project.
+
+During the development process, I gained practical experience in Flutter development, working with application code and mobile development technologies.
+
+## Project Information
+
+This application was developed as part of a company project. The source code is shared with permission for portfolio and professional presentation purposes.
+
+## Developer
+
+**Melike Nazar Uslu**
+
+Computer Engineering Student | Flutter Developer
+
+Antalya Bilim University
